@@ -96,7 +96,7 @@ def get_cities_by_name():
 
 
 @app.route('/get_cities_names')
-def get_cities_names(city_name):
+def get_cities_names():
     ''' Returns a hint with possible continuation options for city name '''
     
     city_name = request.args.get('city_name', type=str)
