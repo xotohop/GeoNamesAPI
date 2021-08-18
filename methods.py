@@ -23,11 +23,12 @@ def get_city_by_geonameid(geonameid):
     
     try:
         city = data[(data['geonameid'] == int(geonameid)) & (data['feature class'] == 'P')]
-        d = city.to_dict(orient='records')
     except ValueError:
-        d = {}
+        return {}
     
-    return json.dumps(d, indent=4, ensure_ascii=False)
+    city['alternatenames'] = city['alternatenames'].apply(lambda x: x.split(','))
+
+    return json.dumps(city.to_dict(orient='records'), indent=4, ensure_ascii=False)
 
 
 def get_cities_list():
@@ -42,8 +43,12 @@ def get_cities_by_name(city_name1, city_name2):
     which of them is located to the north and whether they have the same time zone
     '''
     
-    city_name1 = str(city_name1)
-    city_name2 = str(city_name2)
+    try:
+        city_name1 = str(city_name1)
+        city_name2 = str(city_name2)
+    except ValueError:
+        return {}
+    
     cities1 = data[(data['alternatenames'].str.contains(city_name1, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities2 = data[(data['alternatenames'].str.contains(city_name2, na=False, case=False)) \
@@ -90,6 +95,7 @@ def get_cities_names(city_name):
 
 if __name__ == '__main__':
     # 2013159 - Yakutsk
-    # print(get_city_by_geonameid('2013159'))
-    # print(get_cities_by_name(1, 2))
-    print(get_cities_names('66'))
+    print(get_city_by_geonameid('2013159'))
+    # print()
+    # print(get_cities_by_name('Санкт-Петербург', 'Якутск'))
+    # print(get_cities_names('66'))
