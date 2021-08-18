@@ -1,8 +1,11 @@
 import pandas as pd
-import json
 import re
+from flask import Flask, request, jsonify
 
 from helpers import cities_cleaner, north, tz_diff
+
+app = Flask(__name__)     
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 try:
     data = pd.read_table('RU.txt', delimiter='\t', names=['geonameid', 'name', 'asciiname', 'alternatenames',
@@ -18,37 +21,54 @@ except FileNotFoundError:
     exit()
 
 
-def get_city_by_geonameid(geonameid):
+@app.route('/')
+@app.route('/index')
+def index():
+    return '''
+<html>
+    <head>
+        <title>InfoTeCS test task</title>
+    </head>
+    <body>
+        <h3>Доступные методы:</h3>
+        <h3>get_city_by_geonameid</h3>
+        <p>http://127.0.0.1:8000/get_city_by_geonameid?geonameid=<b>2013159</b></p>
+        <h3>get_cities_list</h3>
+        <p>http://127.0.0.1:8000/get_cities_list?</p>
+        <h3>get_cities_by_name</h3>
+        <p>http://127.0.0.1:8000/get_cities_by_name?city_name1=<b>Москва</b>&city_name2=<b>Санкт-Петербург</b></p>
+        <h3>get_cities_names</h3>
+        <p>http://127.0.0.1:8000/get_cities_names?city_name=<b>москв</b></p>
+    </body>
+</html>'''
+
+
+@app.route('/get_city_by_geonameid') 
+def get_city_by_geonameid():
     ''' Returns information about a city by its geonameid '''
     
-    try:
-        city = data[(data['geonameid'] == int(geonameid)) & (data['feature class'] == 'P')]
-    except ValueError:
-        return {}
-    
+    geonameid = request.args.get('geonameid', type=int)
+    city = data[(data['geonameid'] == geonameid) & (data['feature class'] == 'P')]
     city['alternatenames'] = city['alternatenames'].apply(lambda x: x.split(','))
+    return jsonify(city.to_dict(orient='records'))
 
-    return json.dumps(city.to_dict(orient='records'), indent=4, ensure_ascii=False)
 
-
+@app.route('/get_cities_list')
 def get_cities_list():
     '''  '''
     
     pass
 
 
-def get_cities_by_name(city_name1, city_name2):
+@app.route('/get_cities_by_name')
+def get_cities_by_name():
     '''
     Returns information about two cities by their name (in Russian), and also additionally: 
     which of them is located to the north and whether they have the same time zone
     '''
     
-    try:
-        city_name1 = str(city_name1)
-        city_name2 = str(city_name2)
-    except ValueError:
-        return {}
-    
+    city_name1 = request.args.get('city_name1', type=str)
+    city_name2 = request.args.get('city_name2', type=str)
     cities1 = data[(data['alternatenames'].str.contains(city_name1, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities2 = data[(data['alternatenames'].str.contains(city_name2, na=False, case=False)) \
@@ -72,13 +92,14 @@ def get_cities_by_name(city_name1, city_name2):
     lst.append(north(city1, city2))
     lst.append(tz_diff(city1, city2))
     
-    return json.dumps(lst, indent=4, ensure_ascii=False)
+    return jsonify(lst)
 
 
+@app.route('/get_cities_names')
 def get_cities_names(city_name):
     ''' Returns a hint with possible continuation options for city name '''
     
-    city_name = str(city_name)
+    city_name = request.args.get('city_name', type=str)
     cities = data[(data['alternatenames'].str.contains(city_name, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities['alternatenames'] = cities['alternatenames'].apply(lambda x: x.split(','))
@@ -90,12 +111,8 @@ def get_cities_names(city_name):
                 and re.search('[а-яА-ЯёЁ]', alternatename):
                 lst.append(alternatename)
 
-    return json.dumps(lst, indent=4, ensure_ascii=False)
+    return jsonify(lst)
 
 
 if __name__ == '__main__':
-    # 2013159 - Yakutsk
-    print(get_city_by_geonameid('2013159'))
-    # print()
-    # print(get_cities_by_name('Санкт-Петербург', 'Якутск'))
-    # print(get_cities_names('66'))
+    app.run(host='127.0.0.1', port=8000)
