@@ -1,6 +1,6 @@
 # GeoNames API
 
-## Запуск
+## Установка/Запуск
 
 Код написан на Python 3.9.6
 
@@ -49,17 +49,13 @@ Linux:
     
     ./venv/bin/activate
 
-Установка зависимостей:
+### Установка зависимостей
     
     python -m pip install -r requirements.txt
 
-Запуск сервера:
+### Запуск сервера
     
     python script.py
-
-Выход из виртуальной среды:
-    
-    deactivate
 
 ## Доступные методы
 
