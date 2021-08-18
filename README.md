@@ -51,7 +51,7 @@ Linux:
 
 Запуск сервера:
     
-    python server.py
+    python script.py
 
 Выход из виртуальной среды:
     
