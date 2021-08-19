@@ -76,6 +76,7 @@ def index():
         <p>http://127.0.0.1:8000/get_city_by_geonameid?geonameid=<b>2013159</b></p>
         <h3>get_cities_list</h3>
         <p>http://127.0.0.1:8000/get_cities_list?page=<b>22</b>&size=<b>8</b></p>
+        <p>http://127.0.0.1:8000/get_cities_list?size=<b>1337</b></p>
         <h3>get_cities_by_name</h3>
         <p>http://127.0.0.1:8000/get_cities_by_name?city_name1=<b>Москва</b>&city_name2=<b>Санкт-Петербург</b></p>
         <h3>get_cities_names</h3>
