@@ -35,6 +35,7 @@ def cities_cleaner(city_name, cities):
 
 def north(city1, city2):
     ''' Returns the north of the two cities '''
+    
     lat1 = city1['latitude']
     lat2 = city2['latitude']
     if lat1 > lat2:
@@ -63,17 +64,18 @@ def tz_diff(city1, city2):
 @app.route('/')
 @app.route('/index')
 def index():
+    
     return '''
 <html>
     <head>
-        <title>InfoTeCS test task</title>
+        <title>InfoTeCS GeoNamesAPI</title>
     </head>
     <body>
         <h3>Доступные методы:</h3>
         <h3>get_city_by_geonameid</h3>
         <p>http://127.0.0.1:8000/get_city_by_geonameid?geonameid=<b>2013159</b></p>
         <h3>get_cities_list</h3>
-        <p>http://127.0.0.1:8000/get_cities_list?</p>
+        <p>http://127.0.0.1:8000/get_cities_list?page=<b>22</b>&size=<b>8</b></p>
         <h3>get_cities_by_name</h3>
         <p>http://127.0.0.1:8000/get_cities_by_name?city_name1=<b>Москва</b>&city_name2=<b>Санкт-Петербург</b></p>
         <h3>get_cities_names</h3>
@@ -87,16 +89,31 @@ def get_city_by_geonameid():
     ''' Returns information about a city by its geonameid '''
     
     geonameid = request.args.get('geonameid', type=int)
+    
     city = data[(data['geonameid'] == geonameid) & (data['feature class'] == 'P')]
     city['alternatenames'] = city['alternatenames'].apply(lambda x: x.split(','))
+    
     return jsonify(city.to_dict(orient='records'))
 
 
 @app.route('/get_cities_list')
 def get_cities_list():
-    '''  '''
+    '''
+    Returns a list with information about cities
+    by page number and the number of cities displayed on the page
+    '''
     
-    pass
+    page = request.args.get('page', default=1, type=int) - 1
+    size = request.args.get('size', type=int)
+    
+    if not size or size <= 0 or page < 0:
+        return {}
+    else:
+        s_index = page * size
+        e_index = s_index + size
+        cities = data[data['feature class'] == 'P'][s_index:e_index]
+
+    return jsonify(cities.to_dict(orient='records'))
 
 
 @app.route('/get_cities_by_name')
@@ -108,6 +125,10 @@ def get_cities_by_name():
     
     city_name1 = request.args.get('city_name1', type=str)
     city_name2 = request.args.get('city_name2', type=str)
+    
+    if not city_name1 or not city_name2:
+        return {}
+
     cities1 = data[(data['alternatenames'].str.contains(city_name1, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities2 = data[(data['alternatenames'].str.contains(city_name2, na=False, case=False)) \
@@ -139,6 +160,7 @@ def get_cities_names():
     ''' Returns a hint with possible continuation options for city name '''
     
     city_name = request.args.get('city_name', type=str)
+    
     cities = data[(data['alternatenames'].str.contains(city_name, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities['alternatenames'] = cities['alternatenames'].apply(lambda x: x.split(','))
