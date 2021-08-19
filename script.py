@@ -91,6 +91,9 @@ def get_city_by_geonameid():
     
     geonameid = request.args.get('geonameid', type=int)
     
+    if not geonameid:
+        return {}
+
     city = data[(data['geonameid'] == geonameid) & (data['feature class'] == 'P')]
     city['alternatenames'] = city['alternatenames'].apply(lambda x: x.split(','))
     
@@ -162,6 +165,9 @@ def get_cities_names():
     
     city_name = request.args.get('city_name', type=str)
     
+    if not city_name:
+        return {}
+
     cities = data[(data['alternatenames'].str.contains(city_name, na=False, case=False)) \
         & (data['feature class'] == 'P')].sort_values(by=['population'], ascending=False)
     cities['alternatenames'] = cities['alternatenames'].apply(lambda x: x.split(','))
