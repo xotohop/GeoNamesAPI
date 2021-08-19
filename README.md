@@ -1,4 +1,4 @@
-# GeoNames API
+# GeoNamesAPI
 
 ## Установка/Запуск
 
@@ -20,14 +20,15 @@ Linux:
 
 ### Загрузка репозитория
     
-    git clone https://github.com/xotohop/geo_test_task.git
-    cd geo_test_task
+    git clone https://github.com/xotohop/GeoNamesAPI.git
+    cd GeoNamesAPI
 
 ### Файл с данными
 
-Скопировать файл RU.txt из архива в корень папки geo_test_task
+Скачать архив и распаковать файл RU.txt в корне GeoNamesAPI:
 
-    http://download.geonames.org/export/dump/RU.zip
+    wget http://download.geonames.org/export/dump/RU.zip
+    unzip RU.zip RU.txt
 
 ### virtualenv
 
@@ -47,7 +48,7 @@ PowerShell:
 
 Linux:
     
-    ./venv/bin/activate
+    . venv/bin/activate
 
 ### Установка зависимостей
     
@@ -77,7 +78,7 @@ Linux:
 
 ### GET /get_cities_by_name
 
-Возвращает информацию о двух городах по их названию (на русском языке), а также дополнительно: какой из них расположен севернее; находятся ли они в одном часовом поясе и разницу в часах. Параметры чувствительны к регистру.
+Возвращает информацию о двух городах по их названию (на русском, с учетом регистра), а также дополнительно: какой из них расположен севернее; находятся ли они в одном часовом поясе и разницу в часах.
 
 Пример:
 
@@ -85,7 +86,7 @@ Linux:
 
 ### GET /get_cities_names
 
-Возвращает подсказку с возможными вариантами продолжения названия города. Параметр не чувствителен к регистру.
+Возвращает подсказку с возможными вариантами продолжения названия города.
 
 Пример:
 
