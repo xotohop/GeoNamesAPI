@@ -20,7 +20,7 @@ Linux:
 
 ### Загрузка репозитория
     
-    git clone https://github.com/xotohop/GeoNamesAPI.git
+    git clone https://github.com/xotohop/geo_names_api.git
     cd GeoNamesAPI
 
 ### Файл с данными
